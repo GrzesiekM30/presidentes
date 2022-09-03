@@ -1,20 +1,31 @@
-package com.presidents.model;
+package com.presidents.model.entity;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Getter
+@Entity
+@Table(name = "PRESIDENT")
 @Setter
-@NoArgsConstructor
+@Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class President {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
+
     private String surname;
+
     private Timestamp termFrom;
+
     private Timestamp termTo;
-    private String politicalParty;
+
+    private  String politicalParty;
+
 }

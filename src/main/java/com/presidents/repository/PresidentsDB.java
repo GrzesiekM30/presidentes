@@ -1,6 +1,6 @@
 package com.presidents.repository;
 
-import com.presidents.model.President;
+import com.presidents.model.entity.President;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

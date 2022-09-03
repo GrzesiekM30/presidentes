@@ -1,70 +1,52 @@
 package com.presidents.controller;
 
-//Napisać aplikację, która wystawi API będące katalogiem prezydentów USA
-//        1. Aplikacja ma na starcie swojego działania przechowywać obiekt reprezentujący pierwszego prezydenta USA +
-//        2. Musi istnieć możliwość pobrania listy wszystkich prezydentów przechowywanych w aplikacji +
-//        3. Musi istnieć możliwość dodania nowego prezydenta do statycznej listy prezydentów +
-//        4. Musi istnieć możliwość edytowania obiektu reprezentującego prezydenta metodą PUT +
-//        5.  Musi istnieć możliwość częściowego edytowania obiektu reprezentującego prezydenta metodą PATCH
-//        6. Musi istnieć możliwość usunięcia dowolnego obiektu reprezentującego prezydenta po indeksie w statycznej liście +
-//        NIE COMMITOWAĆ ZMIAN  🙂
-import com.presidents.model.President;
-import com.presidents.repository.PresidentsDB;
+import com.presidents.model.dto.PresidentDto;
+import com.presidents.service.president.PresidentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping("presidents")
 @RestController
+@RequiredArgsConstructor
 public class PresidentsController {
 
-    @GetMapping("/all")
-    public List<President> getAll() {
-        return PresidentsDB.presidentRepository;
+    private final PresidentService presidentService;
+
+    @GetMapping("all")
+    public List<PresidentDto> getAll() {
+        return presidentService.getAllPresidents();
     }
 
-    @PostMapping("/save")
-    public String save(@RequestBody President president) {
-        president.setId((long) PresidentsDB.presidentRepository.size());
-        PresidentsDB.presidentRepository.add(president);
-        return "President " + president.getName() + " " + president.getSurname() + " saved.";
+    @PostMapping("save")
+    public PresidentDto save(@RequestBody PresidentDto presidentDto) {
+        return presidentService.savePresident(presidentDto);
     }
 
-    @PutMapping("/update")
-    public String updateWithBodyOnly(@RequestBody President president) {
-        if (PresidentsDB.presidentRepository.size() - 1 < president.getId()) {
-            president.setId((long) PresidentsDB.presidentRepository.size());
-            PresidentsDB.presidentRepository.add(president);
-        } else {
-            PresidentsDB.presidentRepository.set(Math.toIntExact(president.getId()), president);
-        }
-        return "Updated";
+    @PutMapping("update")
+    public PresidentDto update(@RequestBody PresidentDto presidentDto) {
+        return presidentService.updatePresident(presidentDto);
     }
-    @PatchMapping("partial-update")
-    public String updatePartial(@RequestBody President president) {
-        President p = PresidentsDB.presidentRepository.get(Math.toIntExact(president.getId()));
-        if (president.getName() != null) {
-            p.setName(president.getName());
-        }
-        if (president.getSurname() != null) {
-            p.setSurname(president.getSurname());
-        }
-        if (president.getTermFrom() != null) {
-            p.setTermFrom(president.getTermFrom());
-        }
-        if (president.getTermTo() != null) {
-            p.setTermTo(president.getTermTo());
-        }
-        if (president.getPoliticalParty() != null) {
-            p.setPoliticalParty(president.getPoliticalParty());
-        }
-        return "Updated";
+
+    @PatchMapping("update")
+    public PresidentDto updatePartial(@RequestBody PresidentDto presidentDto) {
+        return presidentService.updatePresidentPartial(presidentDto);
     }
+
     @DeleteMapping("/delete/{id}")
-    public String deleteByIndex(@PathVariable int id){
-        PresidentsDB.presidentRepository.remove(id);
-        return "Removed!";
+    public void deleteByIndex(@PathVariable Long id) {
+        presidentService.deletePresident(id);
     }
 
+    @GetMapping("find/{name}")
+    public Set<PresidentDto> findPresidentByName(@PathVariable String name){
+        return presidentService.findPresidentsByName(name);
+    }
 
+    @GetMapping("find-by-party/{party}")
+    public Set<PresidentDto> findPresidentsByPoliticalParty(@PathVariable String party) {
+        return presidentService.findPresidentsByPoliticalParty(party);
+    }
 }
