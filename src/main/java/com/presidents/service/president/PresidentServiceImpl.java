@@ -73,11 +73,13 @@ public class PresidentServiceImpl implements PresidentService {
                 president.setPoliticalParty(presidentDto.getPoliticalParty());
             }
             return PresidentMapper.toDto(president);
-        }).get();
+        }).orElseThrow(() -> new RuntimeException("Nie ma takiego prezydenta"));
     }
 
     @Override
     public void deletePresident(Long id) {
         presidentsRepository.deleteById(id);
     }
+
+
 }
