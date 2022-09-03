@@ -33,10 +33,10 @@ public class PresidentsController {
     }
 
  //Wyłapywanie wyjątku w celach dydaktycznych
-    @ExceptionHandler({RuntimeException.class})
-    public final ResponseEntity<Object> handleExceptions(Exception e){
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler({RuntimeException.class})
+//    public final ResponseEntity<Object> handleExceptions(Exception e){
+//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
     @PatchMapping("update")
     public PresidentDto updatePartial(@RequestBody PresidentDto presidentDto) {
         return presidentService.updatePresidentPartial(presidentDto);
