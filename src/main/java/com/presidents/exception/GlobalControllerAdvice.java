@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -23,20 +24,14 @@ import static java.util.Objects.nonNull;
 public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
-        List<String> errors = e.getBindingResult().getFieldErrors()
-                .stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-
-        return new ResponseEntity<>(getBody(HttpStatus.NOT_FOUND, errors.toString()), HttpStatus.NOT_FOUND);
+        List<String> errors = ex.getBindingResult().getFieldErrors()
+                .stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+        return new ResponseEntity<>(getBody(HttpStatus.BAD_REQUEST, errors),
+                HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(EntityNotFoundException.class)
-    public final ResponseEntity<Object> handleEntityNotFoundException(Exception e){
-        Map<Object, Object> body = getBody(HttpStatus.NOT_FOUND, e.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
@@ -47,8 +42,13 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public final ResponseEntity<Object> handleEntityNotFoundException(Exception ex) {
+        return new ResponseEntity<>(getBody(HttpStatus.NOT_FOUND, ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
 
-    private Map<Object, Object> getBody(HttpStatus status, String message) {
+    private Map<Object, Object> getBody(HttpStatus status, Object message) {
         Map<Object, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now());
         body.put("status", status.value());
