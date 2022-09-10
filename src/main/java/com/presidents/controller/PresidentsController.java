@@ -22,6 +22,11 @@ public class PresidentsController {
         return presidentService.getAllPresidents();
     }
 
+    @GetMapping("/all-paginated")
+    public List<PresidentDto> getPresidetsPaginated(@RequestParam Integer pageNumber, @RequestParam Integer pageSize){
+        return presidentService.getALlPresidetnsPaginated(pageNumber, pageSize).getContent();
+    }
+
     @PostMapping("save")
     @ResponseStatus(HttpStatus.CREATED)
     public PresidentDto save(@Valid @RequestBody PresidentDto presidentDto) {
